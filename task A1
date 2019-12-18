@@ -1,0 +1,91 @@
+import matplotlib.pyplot as plt
+from pandas.plotting import scatter_matrix
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix, classification_report,accuracy_score
+
+# machine learning
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC, LinearSVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import Perceptron
+from sklearn.linear_model import SGDClassifier
+from sklearn.tree import DecisionTreeClassifier
+import cv2
+import numpy as np
+import time
+class A1:
+    #import time
+    def data_preprocessing(self,path):
+        '''
+        :param path: the path of your csv document
+        :return: three lists:first list: [x_train(before validation),x_trainnew(after validation),y_trainoriginal,y_trainnew]
+                             second list: [x_validation,y_validation],
+                             third list: [x_test,y_test]
+        '''
+    # Loading the CSV file
+        train = pd.read_csv(path,'\t')
+        #'./Datasets/celeba/labels.csv'
+        # Droping the first index column
+        train = train[['img_name','gender']]
+        #train.head()
+
+        import matplotlib.pyplot as plt
+        alist = []
+        for i in range(5000):
+            img = cv2.imread('./Datasets/celeba/img/'+train['img_name'][i],0)
+            #make all pixels from one image as a row of the training matrix
+            alist.append(img[50:180,20:150].reshape((1,-1)).flatten())
+            #img[50:180,20:150] can perfectly cut only the area of face,which help to reduce the dimension of images
+        X = np.array(alist)
+        Y = train['gender']
+
+        #start_time = time.time()
+    # Invoke SKlearn's PCA method
+        from sklearn.decomposition import PCA
+        n_components = 200
+        pca = PCA(n_components=n_components)
+        newdata = pca.fit_transform(X)
+        X = newdata
+        #end_time = time.time()
+        #print('time: %d' % (end_time - start_time))
+    #divide train,validation and test set
+        x_trainoriginal, x_test, y_trainoriginal, y_test = train_test_split(X, Y, test_size=0.1)
+        x_trainnew, x_validation, y_trainnew, y_validation = train_test_split(x_trainoriginal, y_trainoriginal, test_size=0.2)
+    #scale features
+        scaler = MinMaxScaler()
+        # This estimator scales and translates each feature individually such that it is in the given range on the training set, default between(0,1)
+        # fit_transform means to x_trainoriginal is gonna be fitted later
+        x_train = scaler.fit_transform(x_trainoriginal)
+        x_test = scaler.transform(x_test)
+        return [x_train,x_trainnew,y_trainoriginal,y_trainnew],[x_validation,y_validation],[x_test,y_test]
+
+    def train(self,x,y):
+        '''
+        :param x: x_train,which is scaled original x training data
+        :param y: y_trainoriginal,which is original y training data
+        :return: Accuracy on train set
+        '''
+        global model
+        logreg = LogisticRegression(solver='sag', max_iter=500, n_jobs=-1)
+        # n_jobs = -1 means using all processors
+        # more faster than ‘lbfgs’
+        # solver:optimazation methods
+        # Note that ‘sag’ and ‘saga’ fast convergence is only guaranteed on
+        #  features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.
+        # max_iter=100， fail to converge
+        model = logreg.fit(x, y)
+        return logreg.score(x, y)
+
+    def test(self,xtest,ytest):
+        '''
+        :param xtest: x_test,which is scaled original x testing data
+        :param ytest: y_test,which is y testing data
+        :return: Accuracy on test set
+        '''
+        y_pred = model.predict(xtest)
+        return accuracy_score(ytest, y_pred)
