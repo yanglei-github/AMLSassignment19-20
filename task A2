@@ -118,7 +118,7 @@ class A2:
         logreg = LogisticRegression(solver='lbfgs', max_iter=600, n_jobs=-1)
         # n_jobs = -1 means using all processors
         # more faster than ‘lbfgs’
-        # solver:对逻辑回归损失函数的优化方法,'sag':即随机平均梯度下降，是梯度下降法的变种，和普通梯度下降法的区别是每次迭代仅仅用一部分的样本来计算梯度，适合于样本数据多的时候
+        # solver:optimazation methods
         # Note that ‘sag’ and ‘saga’ fast convergence is only guaranteed on
         #  features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.
         # max_iter=100， fail to converge
