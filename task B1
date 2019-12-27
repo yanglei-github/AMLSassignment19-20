@@ -1,0 +1,133 @@
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
+import matplotlib.pyplot as plt
+from sklearn import datasets, linear_model
+from sklearn.metrics import mean_squared_error, r2_score
+
+from pandas.plotting import scatter_matrix
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix, classification_report,accuracy_score
+
+from sklearn import datasets
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.colors import ListedColormap, BoundaryNorm
+import matplotlib.patches as patches
+from scipy.special import expit
+import itertools
+
+# machine learning
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC, LinearSVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import Perceptron
+from sklearn.linear_model import SGDClassifier
+from sklearn.tree import DecisionTreeClassifier
+import cv2
+import numpy as np
+import time
+class B1:
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LinearRegression
+
+    import matplotlib.pyplot as plt
+    from sklearn import datasets, linear_model
+    from sklearn.metrics import mean_squared_error, r2_score
+
+    from pandas.plotting import scatter_matrix
+    import pandas as pd
+    from sklearn.preprocessing import MinMaxScaler
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import confusion_matrix, classification_report,accuracy_score
+
+    from sklearn import datasets
+    import matplotlib.pyplot as plt
+    from matplotlib import cm
+    from matplotlib.colors import ListedColormap, BoundaryNorm
+    import matplotlib.patches as patches
+    from scipy.special import expit
+    import itertools
+
+    # machine learning
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.svm import SVC, LinearSVC
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.linear_model import Perceptron
+    from sklearn.linear_model import SGDClassifier
+    from sklearn.tree import DecisionTreeClassifier
+    import cv2
+    import numpy as np
+    import time
+    #data_train, data_val, data_test = data_preprocessing(args...)
+    def data_preprocessing(self,path):
+    # Loading the CSV file
+        train = pd.read_csv(path,'\t')
+        #'./Datasets/celeba/labels.csv'
+        # Droping the first index column
+        train = train[['file_name','face_shape']]
+        #train.head()
+
+        from PIL import Image
+        import cv2
+        import numpy as np
+        import matplotlib.pyplot as plt
+        alist = []
+        for i in range(10000):
+            img = Image.open('./Datasets/cartoon_set/img/' + train['file_name'][i]).convert('L')
+            img = np.array(img.resize((100, 100)))
+            alist.append(img.reshape((1, -1)).flatten())
+        X = np.array(alist)
+        Y = train['face_shape']
+
+        start_time = time.time()
+        # Invoke SKlearn's PCA method
+        from sklearn.decomposition import PCA
+        n_components = 300
+        pca = PCA(n_components=n_components)
+        newdata = pca.fit_transform(X)
+        #eigenvalues = pca.components_.reshape(n_components, 28, 28)
+
+        # Extracting the PCA components ( eignevalues )
+        #eigenvalues = pca.components_.reshape(n_components, 28, 28)
+        X = newdata
+        end_time = time.time()
+        #print('time: %d' % (end_time - start_time))
+        #print(X.shape)
+        #print(X)
+        #plt.imshow(img)
+        #plt.axis('off')
+        #plt.show()
+        #print(X)
+        x_trainoriginal, x_test, y_trainoriginal, y_test = train_test_split(X, Y, test_size=0.1)
+        x_trainnew, x_validation, y_trainnew, y_validation = train_test_split(x_trainoriginal, y_trainoriginal, test_size=0.2)
+
+        scaler = MinMaxScaler()  # This estimator scales and translates each feature individually such that it is in the given range on the training set, default between(0,1)
+        # fit_transform means to x_train is gonna be fitted later
+        x_train = scaler.fit_transform(x_trainoriginal)
+        x_test = scaler.transform(x_test)
+        return [x_train,x_trainnew,y_trainoriginal,y_trainnew],[x_validation,y_validation],[x_test,y_test]
+
+    def train(self,x,y):
+        global model
+        logreg = LogisticRegression(solver='lbfgs', max_iter=800, multi_class='auto', n_jobs=-1)
+        # n_jobs = -1 means using all processors
+        # more faster than ‘lbfgs’
+        # solver:optimazation methods
+        # Note that ‘sag’ and ‘saga’ fast convergence is only guaranteed on
+        #  features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.
+        # max_iter=100， fail to converge
+        model = logreg.fit(x, y)
+        return logreg.score(x, y)
+
+    def test(self,xtest,ytest):
+        y_pred = model.predict(xtest)
+        return accuracy_score(ytest, y_pred)
