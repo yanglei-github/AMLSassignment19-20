@@ -1,0 +1,223 @@
+from sklearn.model_selection import learning_curve
+from sklearn.model_selection import ShuffleSplit
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+import numpy as np
+import time
+class B2:
+    #data_train, data_val, data_test = data_preprocessing(args...)
+    def data_preprocessing(self,path_csv, path_img):
+        """
+                read data from path you give an preprocess the data(PCA, train_test_validation split, etc.)
+                :param path_csv: string
+                    the path of csv document
+                :param path_img: string
+                    the path of img document
+                :return: three lists:first list: [x_train(before validation),x_trainnew(after validation),y_trainoriginal,y_trainnew]
+                                     second list: [x_validation,y_validation],
+                                     third list: [x_test,y_test]
+        """
+    # Loading the CSV file
+        train = pd.read_csv(path_csv,'\t')
+        #'./Datasets/celeba/labels.csv'
+        # Droping the first index column
+        train = train[['file_name','eye_color']]
+        #train.head()
+
+        from PIL import Image
+        import cv2
+        import numpy as np
+        import matplotlib.pyplot as plt
+        alist = []
+        dlist = []
+        clist = list(train['eye_color'])
+        for i in range(10000):
+            img = cv2.imread(path_img + train['file_name'][i])
+            # img = np.array(img[230:300,170:330].resize((100,100)))
+            if img[250:275, 180:230].reshape((1, -1)).flatten().sum() >= 180000:
+                alist.append(img[250:275, 180:230].reshape((1, -1)).flatten())
+                dlist.append(clist[i])
+            else:
+                pass
+        X = np.array(alist)
+        Y = np.array(dlist)
+
+        start_time = time.time()
+        # Invoke SKlearn's PCA method
+        from sklearn.decomposition import PCA
+        n_components = 100
+        pca = PCA(n_components=n_components)
+        newdata = pca.fit_transform(X)
+        #eigenvalues = pca.components_.reshape(n_components, 28, 28)
+
+        # Extracting the PCA components ( eignevalues )
+        #eigenvalues = pca.components_.reshape(n_components, 28, 28)
+        X = newdata
+        end_time = time.time()
+        #print('time: %d' % (end_time - start_time))
+        #print(X.shape)
+        #print(X)
+        #plt.imshow(img)
+        #plt.axis('off')
+        #plt.show()
+        #print(X)
+        x_trainoriginal, x_test, y_trainoriginal, y_test = train_test_split(X, Y, test_size=0.1)
+        x_trainnew, x_validation, y_trainnew, y_validation = train_test_split(x_trainoriginal, y_trainoriginal, test_size=0.2)
+        #test_size = 0.1
+        scaler = MinMaxScaler()  # This estimator scales and translates each feature individually such that it is in the given range on the training set, default between(0,1)
+        # fit_transform means to x_train is gonna be fitted later
+        x_train = scaler.fit_transform(x_trainoriginal)
+        x_test = scaler.transform(x_test)
+        return [x_train,x_trainnew,y_trainoriginal,y_trainnew],[x_validation,y_validation],[x_test,y_test]
+
+    def train(self,x,y):
+        """
+        :param x: x_train,which is scaled original x training data
+        :param y: y_trainoriginal,which is original y training data
+        :return: Accuracy on train set
+        """
+        global model
+        global logreg
+        logreg = LogisticRegression(solver='sag', max_iter=300, multi_class='auto', n_jobs=-1)
+        # n_jobs = -1 means using all processors
+        # more faster than ‘lbfgs’
+        # solver:optimazation methods
+        # Note that ‘sag’ and ‘saga’ fast convergence is only guaranteed on
+        #  features with approximately the same scale. You can preprocess the data with a scaler from sklearn.preprocessing.
+        # max_iter=100， fail to converge
+        model = logreg.fit(x, y)
+        return logreg.score(x, y)
+
+    def test(self,xtest,ytest):
+        """
+        :param xtest: x_test,which is scaled original x testing data
+        :param ytest: y_test,which is y testing data
+        :return: Accuracy on test set
+        """
+        y_pred = model.predict(xtest)
+        return accuracy_score(ytest, y_pred)
+    def plot_of_learningcurve(self,x,y):
+        def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
+                                n_jobs=None, train_sizes=np.linspace(.1, 1.0, 5)):
+            """
+            Generate a plot of the test and training learning curve.
+            :param estimator: object type that implements the "fit" and "predict" methods
+                An object that implements the "fit" and "predict" methods.
+            :param title: string
+                Title for the chart.
+            :param X: array-like, shape (n_samples, n_features)
+                Training vector, where n_samples is the number of samples and
+                n_features is the number of features.
+            :param y: array-like, shape (n_samples) or (n_samples, n_features), optional
+                Target relative to X for classification or regression;
+                None for unsupervised learning.
+            :param ylim: tuple, shape (ymin, ymax), optional
+                Defines minimum and maximum yvalues plotted.
+            :param cv: int
+                cross-validation generator or an iterable, optional
+            :param n_jobs: int or None, optional (default=None)
+                Number of jobs to run in parallel.
+            :param train_sizes: array-like
+                shape (n_ticks,), dtype float or int
+            :return: plot
+            """
+            plt.figure()
+            plt.title(title)
+            if ylim is not None:
+                plt.ylim(*ylim)
+            plt.xlabel("Training examples")
+            plt.ylabel("Score")
+            train_sizes, train_scores, test_scores = learning_curve(
+                estimator, X, y, cv=cv, n_jobs=n_jobs, train_sizes=train_sizes)
+            train_scores_mean = np.mean(train_scores, axis=1)
+            train_scores_std = np.std(train_scores, axis=1)
+            test_scores_mean = np.mean(test_scores, axis=1)
+            test_scores_std = np.std(test_scores, axis=1)
+            plt.grid()
+
+            plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
+                             train_scores_mean + train_scores_std, alpha=0.1,
+                             color="r")
+            plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
+                             test_scores_mean + test_scores_std, alpha=0.1, color="g")
+            plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
+                     label="Training score")
+            plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
+                     label="Cross-validation score")
+
+            plt.legend(loc="best")
+            return plt
+
+        title = "Learning Curves (Logistic Regression)"
+        # Cross validation with 100 iterations to get smoother mean test and train
+        # score curves, each time with 20% data randomly selected as a validation set.
+        cv = ShuffleSplit(n_splits=10, test_size=0.2, random_state=0)
+        estimator = logreg
+        # LogisticRegression(solver='sag',max_iter=500)
+        plot_learning_curve(estimator, title, x, y, ylim=(0.7, 1.01), cv=cv, n_jobs=4)
+        plt.show()
+        # [0.1,0.325,0.55,0.775,1.0]
+        # 5000*0.9*0.1*0.8 training sets
+
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
+from sklearn.decomposition import PCA
+class B2_hyperparameter:
+    def data_hyperselect(self,path_csv,path_img):
+        """
+        Generate the result of hyperparameters selection
+        :param path_csv: string
+            the path of csv document
+        :param path_img: string
+            the path of img document
+        :return: the result of hyperparameters selection
+        """
+        # Loading the CSV file
+
+        train = pd.read_csv(path_csv, '\t')
+        # './Datasets/celeba/labels.csv'
+        # Droping the first index column
+        train = train[['file_name', 'eye_color']]
+        # train.head()
+
+        from PIL import Image
+        import cv2
+        import numpy as np
+        import matplotlib.pyplot as plt
+        alist = []
+        dlist = []
+        clist = list(train['eye_color'])
+        for i in range(10000):
+            img = cv2.imread(path_img + train['file_name'][i])
+            # img = np.array(img[230:300,170:330].resize((100,100)))
+            if img[250:275, 180:230].reshape((1, -1)).flatten().sum() >= 180000:
+                alist.append(img[250:275, 180:230].reshape((1, -1)).flatten())
+                dlist.append(clist[i])
+            else:
+                pass
+        X = np.array(alist)
+        Y = np.array(dlist)
+        # this is hyperparameter selection for l2 regularization.
+        #Notation: when you run this selection codes, it may show covergence warning because we would try some low number of iterations.
+        logistic = LogisticRegression(n_jobs=-1, penalty='l2', multi_class='auto')
+        # solver='sag',max_iter=200
+        pca = PCA()
+        pipe = Pipeline(steps=[('pca', pca), ('logistic', logistic)])
+
+        param_grid = {
+            'pca__n_components': [100, 200],
+            'logistic__solver': ['sag', 'lbfgs'],
+            'logistic__max_iter': [300, 500, 600, 1000],
+        }
+        # ,'liblinear'
+        # np.arange(100,1100,100)
+        # [100, 150, 200, 300, 400]
+        # 'logistic__alpha': np.linespace(-4, 4, 5),
+        search = GridSearchCV(pipe, param_grid, iid=False, cv=5)
+        search.fit(X, Y)
+        print("Best parameter (CV score=%0.3f):" % search.best_score_)
+        print(search.best_params_)
