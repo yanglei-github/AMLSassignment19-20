@@ -1,3 +1,13 @@
+#Caution:
+#If you cannot successfully run main.py, you have to check the path of csv document and image document you use.
+#You can easily change the path into your own path of csv document and image document in your computer.
+#Note:
+#In Pycharm, When you first run this main.py,
+# you have to select the Script path of main.py to run it.
+# Script path example as : 'your current position(D:\)' + 'AMLS_19-20_Lei_Yang_SN19041732\main.py',
+# for example: 'D:\AMLS_19-20_Lei_Yang_SN19041732\main.py'
+#Also, you have to make sure that your Working directory is 'AMLS_19-20_Lei_Yang_SN19041732',
+# which path is 'your current position' + 'AMLS_19-20_Lei_Yang_SN19041732', for example 'D:\AMLS_19-20_Lei_Yang_SN19041732'
 import A1
 import A2
 import B1
