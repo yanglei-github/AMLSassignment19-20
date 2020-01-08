@@ -1,5 +1,5 @@
 # AMLSassignment19_20
-**Caution:(Really important:[Please run my code you get in my Google drive, do not use the code in Github to run)** 
+**Caution:(Really important:Please run my code you get in my Google drive, do not use the code in Github to run)** 
 
 The Repository in Github is only used for evidence that how I gradually built and tested my solution. So I don't put datasets and other things in Github, the whole project you can find in the link of Google  Drive(https://drive.google.com/file/d/1t0iQqDUBqeIoaRB84S8ekfAf490LXkpS). **You must use the link of google drive to access my project and run my code in google drive,which can be run successfully. Please do not run the code in my Github**.(Because the Github repository name is  *AMLSassignment19_20*, which is asked in your assignment submission description part, but in Code criteria description part, you asked to use *AMLS_19-20_Lei_Yang_SN19041732* as the folder name. It will cause the directory name in my code is different in google drive and github. **So you have to run my whole project you get from google drive, not the project in Github**)
 
