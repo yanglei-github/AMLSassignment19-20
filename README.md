@@ -14,10 +14,11 @@ numpy, pandas,  matplotlib.pyplot，PIL, cv2, sklearn(sklearn.model_selection, s
 
 
 Note:
+1.When you get code from my Google Drive, if you cannot successfully run main.py, you have to check the path of csv document and image document you use. You can easily change the path into your own path of csv document and image document in your computer.
 
-1. Highly recommend for using Pycharm to open the whole project(Pycharm can automatically detect the path of my module A1,A2,B1,B2 in my project).
+2. Highly recommend for using Pycharm to open the whole project(Pycharm can automatically detect the path of my module A1,A2,B1,B2 in my project).
 
-2. In Pycharm, when you run this main.py for the first time, you have to select the Script path of main.py to run it. 
+3. In Pycharm, when you run this main.py for the first time, you have to select the Script path of main.py to run it. 
 
    Script path example : 'your current position(such as D:\\)' + 'AMLS_19-20_Lei_Yang_SN19041732\main.py' Also, you have to make sure that your Working directory is 'AMLS_19-20_Lei_Yang_SN19041732', which path is 'your current position(such as D:\\)' + 'AMLS_19-20_Lei_Yang_SN19041732', for example, 'D:\\AMLS_19-20_Lei_Yang_SN19041732'.
 
